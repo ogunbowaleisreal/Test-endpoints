@@ -1,11 +1,12 @@
 // importing dependencies//
 const express = require('express');
-const app = express()
+const app = express();
 const {chromium} = require('playwright');
 //whois package for domain expiry date//
 const whois = require('whois');
+require('dotenv').config();
 const PORT = 3500;
-app.use(express.json())
+app.use(express.json());
 
 
 // end point to check if a site is up or not and continues to check after 30 sec interval//
@@ -15,6 +16,7 @@ app.get('/:site',(req,res)=>{
         async ()=>{
     const response =await fetch(`https://${req.params.site}`)
     if (response.status == 200){
+        res.redirect(`https://${req.params.site}`)
         console.log('this site is up')   
     }else{
     console.log('This site is currently down')     
@@ -104,13 +106,11 @@ app.listen(PORT,()=>{console.log(`server running on port ${PORT}`);
         console.log('endpoint accepted data') 
         //proceeds to login with whatever data its given//
         await page.goto("https://www.facebook.com");
-        await page.fill('input[name = "email"]',jsondata.username);
-        await page.fill('input[name = "pass"]', jsondata.password);
+        await page.fill('input[name = "email"]',process.env.FACEBOOK_USERNAME);
+        await page.fill('input[name = "pass"]', process.env.FACEBOOK_PASSWORD);
         await page.click('button[name = "login"]');
         console.log('facebook was successfully logged into');
         //verifies successful login //
-        await page.waitForNavigation();
-        await browser.close()
     }else{
         console.log('post request failed')
     }

@@ -10,10 +10,10 @@
   "author": "Isreal",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "nodemon": "^3.1.9",
     "playwright": "^1.49.1",
-    "whois": "^2.14.2",
-    "whois-parser": "^1.0.3"
+    "whois": "^2.14.2"
   }
 }
