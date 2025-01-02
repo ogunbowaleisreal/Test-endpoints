@@ -1,0 +1,19 @@
+{
+  "name": "test-endpoints",
+  "version": "1.0.0",
+  "description": "just test endpoints",
+  "main": "testEndpoint.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon testEndpoint"
+  },
+  "author": "Isreal",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.2",
+    "nodemon": "^3.1.9",
+    "playwright": "^1.49.1",
+    "whois": "^2.14.2",
+    "whois-parser": "^1.0.3"
+  }
+}
