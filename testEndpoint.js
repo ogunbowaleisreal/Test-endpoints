@@ -47,7 +47,6 @@ app.get("/siteExpiration/:domain", async (req, res) => {
         const currentTime = new Date()
         const expirationDate = parsedData['Registrar Registration Expiration Date']
         const dateObject = new Date(expirationDate)
-        console.log(dateObject)
         if (currentTime - dateObject <= 0) {
             console.log(`The domain: ${req.params.domain} is not expired yet`)
         } else {
