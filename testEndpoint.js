@@ -79,7 +79,7 @@ function parseWhoisData(data) {
 app.post('/testPage', (req, res) => {
     try {
         const { username, password } = req.body;
-        if (username == 'isreal' && password == 'isreal') {
+        if (username == process.env.FACEBOOK_USERNAME && password == process.env.FACEBOOK_PASSWORD) {
             console.log('request received')
             res.status(200).json({ 'message': 'request received' })
         } else {
@@ -97,7 +97,7 @@ app.listen(PORT, () => {
     (async () => {
         const browser = await chromium.launch({ headless: false })
         const page = await browser.newPage()
-        const jsondata = { username: "isreal", password: "isreal" }
+        const jsondata = { username: process.env.FACEBOOK_USERNAME, password: process.env.FACEBOOK_PASSWORD }
         const response = await page.request.post('http://localhost:3500/testPage', {
             //stringify data before posting
             data: JSON.stringify(jsondata),
@@ -113,7 +113,9 @@ app.listen(PORT, () => {
             await page.fill('input[name = "email"]', process.env.FACEBOOK_USERNAME);
             await page.fill('input[name = "pass"]', process.env.FACEBOOK_PASSWORD);
             await page.click('button[name = "login"]');
+            await page.waitForNavigation({waitUntil : 'load'})
             console.log('facebook was successfully logged into');
+            browser.close();
             //verifies successful login //
         } else {
             console.log('post request failed')
