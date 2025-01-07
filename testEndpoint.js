@@ -94,7 +94,7 @@ app.listen(PORT, () => {
     //playwright script is added in here to ensure server is running 
     // before tests are run//
     (async () => {
-        const browser = await chromium.launch({ headless: false })
+        const browser = await chromium.launch()
         const page = await browser.newPage()
         const jsondata = { username: process.env.FACEBOOK_USERNAME, password: process.env.FACEBOOK_PASSWORD }
         const response = await page.request.post('http://localhost:3500/testPage', {
