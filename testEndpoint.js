@@ -49,6 +49,7 @@ app.get("/siteExpiration/:domain", async (req, res) => {
         const dateObject = new Date(expirationDate)
         if (currentTime - dateObject <= 0) {
             console.log(`The domain: ${req.params.domain} is not expired yet`)
+            res.redirect(`https://${req.params.domain}`)
         } else {
             console.log(`This domain:${req.params.domain} is expired`)
         }
