@@ -1,7 +1,7 @@
 // importing dependencies//
 const express = require('express');
 const app = express();
-const {chromium} = require('playwright');
+const { chromium } = require('playwright');
 //whois package for domain expiry date//
 const whois = require('whois');
 require('dotenv').config();
@@ -11,47 +11,49 @@ app.use(express.json());
 
 // end point to check if a site is up or not and continues to check after 30 sec interval//
 
-app.get('/:site',(req,res)=>{
-    try{
-        async ()=>{
-    const response =await fetch(`https://${req.params.site}`)
-    if (response.status == 200){
-        res.redirect(`https://${req.params.site}`)
-        console.log('this site is up')   
-    }else{
-    console.log('This site is currently down')     
-    }
-}
-        setInterval(async ()=>{
-        const response =await fetch(`https://${req.params.site}`)
-        if (response.status == 200){
-            console.log('this site is up')
-            res.redirect(`https://${req.params.site}`)
-            
-        }else{
-        console.log('This site is currently down')      
+app.get('/:site', async(req, res) => {
+    const checkSite = async () => {
+        try {
+                const response = await fetch(`https://${req.params.site}`)
+                if (response.status == 200) {
+                    console.log('this site is up')
+                    return true
+                } else {
+                    console.log('This site is currently down')
+                    return
+            }
+        } catch (err) {
+            console.log(err.message)
+
         }
-    },30000)}catch(error){
-            console.log(error.message)
-    }})
+    }
+        let issiteup = await checkSite()
+        if(issiteup){
+            res.redirect(`https://${req.params.site}`)
+        }else{
+            res.send('This site is currently down')
+        }
+        setInterval(checkSite, 30000)
+    
+})
 
 // Another endpoint to test a site for expiration//
 //this takes in the site name as a url param//
 
-app.get("/siteExpiration/:domain",async (req,res)=>{
-    await whois.lookup(req.params.domain,(err, data)=>{
-       const parsedData =  parseWhoisData(data)
-    console.log(data)
+app.get("/siteExpiration/:domain", async (req, res) => {
+    await whois.lookup(req.params.domain, (err, data) => {
+        const parsedData = parseWhoisData(data)
+        console.log(data)
         const currentTime = new Date()
         const expirationDate = parsedData['Registrar Registration Expiration Date']
         const dateObject = new Date(expirationDate)
         console.log(dateObject)
-        if(currentTime - dateObject <= 0){
+        if (currentTime - dateObject <= 0) {
             console.log(`The domain: ${req.params.domain} is not expired yet`)
-        }else{
+        } else {
             console.log(`This domain:${req.params.domain} is expired`)
         }
-        if (err){
+        if (err) {
             console.log(err.message)
         }
     })
@@ -74,47 +76,49 @@ function parseWhoisData(data) {
 // 3rd endpoint for end to end testing and browser automation with playwright//
 // this endpoint simply verifies data and then login is automated with playwright//
 
-app.post('/testPage',(req,res)=>{
-    try{
-    const {username,password} = req.body;
-    if(username == 'isreal' && password== 'isreal'){
-        console.log('request received')
-        res.status(200).json({'message':'request received'})
-    }else{
-        console.log('not allowed')
-    }}catch(err){
+app.post('/testPage', (req, res) => {
+    try {
+        const { username, password } = req.body;
+        if (username == 'isreal' && password == 'isreal') {
+            console.log('request received')
+            res.status(200).json({ 'message': 'request received' })
+        } else {
+            console.log('not allowed')
+        }
+    } catch (err) {
         console.log(err.message)
     }
 });
 
-app.listen(PORT,()=>{console.log(`server running on port ${PORT}`);
-//playwright script is added in here to ensure server is running 
-// before tests are run//
-(async ()=>{
-    const browser = await chromium.launch({headless:false})
-    const page = await browser.newPage()
-    const jsondata = {username : "isreal", password:"isreal"}
-    const response = await page.request.post('http://localhost:3500/testPage',{
-        //stringify data before posting
-    data: JSON.stringify(jsondata),
-        headers:{
-            'Content-Type': 'application/json'
-        },
-    })
-    const status = response.status()
-    if(status == 200){
-        console.log('endpoint accepted data') 
-        //proceeds to login with whatever data its given//
-        await page.goto("https://www.facebook.com");
-        await page.fill('input[name = "email"]',process.env.FACEBOOK_USERNAME);
-        await page.fill('input[name = "pass"]', process.env.FACEBOOK_PASSWORD);
-        await page.click('button[name = "login"]');
-        console.log('facebook was successfully logged into');
-        //verifies successful login //
-    }else{
-        console.log('post request failed')
-    }
-})();
+app.listen(PORT, () => {
+    console.log(`server running on port ${PORT}`);
+    //playwright script is added in here to ensure server is running 
+    // before tests are run//
+    (async () => {
+        const browser = await chromium.launch({ headless: false })
+        const page = await browser.newPage()
+        const jsondata = { username: "isreal", password: "isreal" }
+        const response = await page.request.post('http://localhost:3500/testPage', {
+            //stringify data before posting
+            data: JSON.stringify(jsondata),
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        })
+        const status = response.status()
+        if (status == 200) {
+            console.log('endpoint accepted data')
+            //proceeds to login with whatever data its given//
+            await page.goto("https://www.facebook.com");
+            await page.fill('input[name = "email"]', process.env.FACEBOOK_USERNAME);
+            await page.fill('input[name = "pass"]', process.env.FACEBOOK_PASSWORD);
+            await page.click('button[name = "login"]');
+            console.log('facebook was successfully logged into');
+            //verifies successful login //
+        } else {
+            console.log('post request failed')
+        }
+    })();
 })
 
 
