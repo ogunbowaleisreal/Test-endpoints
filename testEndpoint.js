@@ -10,7 +10,6 @@ app.use(express.json());
 
 
 // end point to check if a site is up or not and continues to check after 30 sec interval//
-
 app.get('/:site', async(req, res) => {
     const checkSite = async () => {
         try {
@@ -18,13 +17,12 @@ app.get('/:site', async(req, res) => {
                 if (response.status == 200) {
                     console.log('this site is up')
                     return true
-                } else {
+                } else{
                     console.log('This site is currently down')
-                    return
+                    return false
             }
         } catch (err) {
             console.log(err.message)
-
         }
     }
         let issiteup = await checkSite()
@@ -41,7 +39,7 @@ app.get('/:site', async(req, res) => {
 //this takes in the site name as a url param//
 
 app.get("/siteExpiration/:domain", async (req, res) => {
-    await whois.lookup(req.params.domain, (err, data) => {
+    await whois.lookup(req.params.domain, (err, data) =>{
         const parsedData = parseWhoisData(data)
         console.log(data)
         const currentTime = new Date()
@@ -58,7 +56,8 @@ app.get("/siteExpiration/:domain", async (req, res) => {
         }
     })
 })
-// the parsing function was from chat gpt //
+
+// the parsing function was from chat gpt//
 //to parse data from who is package//
 function parseWhoisData(data) {
     const lines = data.split('\n');
@@ -71,11 +70,11 @@ function parseWhoisData(data) {
             result[key] = value;
         }
     });
+
     return result;
 }
 // 3rd endpoint for end to end testing and browser automation with playwright//
 // this endpoint simply verifies data and then login is automated with playwright//
-
 app.post('/testPage', (req, res) => {
     try {
         const { username, password } = req.body;
@@ -106,7 +105,7 @@ app.listen(PORT, () => {
             },
         })
         const status = response.status()
-        if (status == 200) {
+        if(status == 200){
             console.log('endpoint accepted data')
             //proceeds to login with whatever data its given//
             await page.goto("https://www.facebook.com");
